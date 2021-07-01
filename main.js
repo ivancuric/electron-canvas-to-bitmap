@@ -2,6 +2,8 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 
+process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
+
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
