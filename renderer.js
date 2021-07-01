@@ -5,27 +5,26 @@
 // selectively enable features needed in the rendering
 // process.
 
-const fs = require("fs");
-const path = require("path");
-const worker = new Worker(path.resolve(__dirname, "worker.js"));
+// const fs = require("fs");
+// const path = require("path");
 
 const video = document.getElementById("potato");
 
 video.addEventListener("loadedmetadata", () => {
-  // let canvas = new OffscreenCanvas(3840, 2160);
-  // let ctx = canvas.getContext("2d");
+  let canvas = new OffscreenCanvas(3840, 2160);
+  let ctx = canvas.getContext("2d");
   // let frame = 0;
 
   const capture = async (time, meta) => {
     // console.log(time, meta);
 
-    // ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    const bitmap = await createImageBitmap(video);
+    // const bitmap = await createImageBitmap(video);
 
-    worker.postMessage({ bitmap }, [bitmap]);
+    // worker.postMessage({ bitmap }, [bitmap]);
 
-    // const pixelData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    const pixelData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
     // fs.writeFileSync(
     //   path.resolve(__dirname, `./frames/${frame}.frame`),
     //   pixelData
