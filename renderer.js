@@ -21,8 +21,6 @@ video.addEventListener("loadedmetadata", () => {
 
     // ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    const s = performance.now();
-
     const bitmap = await createImageBitmap(video);
 
     worker.postMessage({ bitmap }, [bitmap]);
