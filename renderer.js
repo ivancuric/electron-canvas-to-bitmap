@@ -7,7 +7,8 @@
 
 const fs = require("fs");
 const path = require("path");
-const worker = new Worker(path.resolve(__dirname, "worker.js"));
+const worker1 = new Worker(path.resolve(__dirname, "worker.js"));
+const worker2 = new Worker(path.resolve(__dirname, "worker.js"));
 
 const video = document.getElementById("potato");
 
@@ -20,8 +21,6 @@ video.addEventListener("loadedmetadata", () => {
     // console.log(time, meta);
 
     // ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    const s = performance.now();
 
     const bitmap = await createImageBitmap(video);
 
