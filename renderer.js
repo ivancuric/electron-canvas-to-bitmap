@@ -5,36 +5,38 @@
 // selectively enable features needed in the rendering
 // process.
 
-const fs = require('fs')
-const path = require('path')
+const fs = require("fs");
+const path = require("path");
+const worker = new Worker(path.resolve(__dirname, "worker.js"));
 
-const video = document.getElementById('potato')
+const video = document.getElementById("potato");
 
-video.addEventListener('loadedmetadata', () => {
-  let canvas = new OffscreenCanvas(3840, 2160)
-  let ctx = canvas.getContext('2d')
-  let frame = 0
+video.addEventListener("loadedmetadata", () => {
+  // let canvas = new OffscreenCanvas(3840, 2160);
+  // let ctx = canvas.getContext("2d");
+  // let frame = 0;
 
-  const capture = (time, meta) => {
-    console.log(time, meta)
+  const capture = async (time, meta) => {
+    // console.log(time, meta);
 
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+    // ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    queueMicrotask(() => {
-      const s = performance.now()
-      const pixelData = ctx.getImageData(0, 0, canvas.width, canvas.height).data
-      fs.writeFileSync(path.resolve(__dirname, `./frames/${frame}.frame`), pixelData)
-      console.log('asd', performance.now() - s)
-      frame++
-    })
+    const s = performance.now();
 
-    if (frame > 10) {
-      return
-    }
+    const bitmap = await createImageBitmap(video);
 
-    video.requestVideoFrameCallback(capture)
-  }
+    worker.postMessage({ bitmap }, [bitmap]);
 
-  video.play()
-  video.requestVideoFrameCallback(capture)
-})
+    // const pixelData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    // fs.writeFileSync(
+    //   path.resolve(__dirname, `./frames/${frame}.frame`),
+    //   pixelData
+    // );
+    // console.log("asd", performance.now() - s);
+
+    video.requestVideoFrameCallback(capture);
+  };
+
+  video.play();
+  video.requestVideoFrameCallback(capture);
+});
