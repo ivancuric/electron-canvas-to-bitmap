@@ -22,18 +22,22 @@ video.addEventListener("loadedmetadata", () => {
   let ctx2 = canvas2.getContext("2d");
 
   const capture = async (time, meta) => {
+    const s = performance.now();
     const frame = meta.presentedFrames;
-    if (frame - latestFrame > 1) {
-      console.log(`Dropped frame ${frame}`);
-    }
-    latestFrame = frame;
 
-    if (frame % 2) {
-      ctx = ctx1;
-      canvas = canvas1;
-    } else {
-      ctx = ctx2;
-      canvas = canvas2;
+    switch (frame % 2) {
+      case 0:
+        ctx = ctx1;
+        canvas = canvas1;
+        break;
+
+      case 1:
+        ctx = ctx2;
+        canvas = canvas2;
+        break;
+
+      default:
+        break;
     }
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -45,6 +49,11 @@ video.addEventListener("loadedmetadata", () => {
     //   pixelData
     // );
     // console.log("asd", performance.now() - s);
+
+    if (frame - latestFrame > 1) {
+      console.log(`Dropped frame ${frame}`, performance.now() - s);
+    }
+    latestFrame = frame;
 
     video.requestVideoFrameCallback(capture);
   };
