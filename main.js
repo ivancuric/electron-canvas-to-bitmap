@@ -1,6 +1,7 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow } = require("electron");
-const path = require("path");
+
+process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
 function createWindow() {
   // Create the browser window.
@@ -8,7 +9,6 @@ function createWindow() {
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, "./preload.js"),
       contextIsolation: false,
       nodeIntegration: true,
     },
@@ -20,7 +20,7 @@ function createWindow() {
   mainWindow.webContents.on("did-frame-finish-load", () => {
     // Open the DevTools.
     if (!app.isPackaged) {
-      // mainWindow.webContents.openDevTools();
+      mainWindow.webContents.openDevTools();
     }
   });
 }

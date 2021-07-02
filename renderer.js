@@ -1,9 +1,14 @@
 const path = require("path");
-const worker1 = new Worker(path.resolve(__dirname, "worker.js"));
-const worker2 = new Worker(path.resolve(__dirname, "worker.js"));
 
 const video = document.getElementById("potato");
 let latestFrame = 0;
+
+const N_WORKERS = 2;
+const workers = [];
+
+for (let i = 0; i < N_WORKERS; i++) {
+  workers[i] = new Worker(path.resolve(__dirname, "worker.js"));
+}
 
 video.addEventListener("loadedmetadata", () => {
   const capture = async (time, meta) => {
@@ -11,21 +16,13 @@ video.addEventListener("loadedmetadata", () => {
     const s = performance.now();
     const bitmap = await createImageBitmap(video);
 
-    switch (frame % 2) {
-      case 0:
-        worker1.postMessage({ bitmap, frame }, [bitmap]);
-        break;
-
-      case 1:
-        worker2.postMessage({ bitmap, frame }, [bitmap]);
-        break;
-
-      default:
-        break;
-    }
+    workers[frame % N_WORKERS].postMessage({ bitmap, frame }, [bitmap]);
 
     if (frame - latestFrame > 1) {
-      console.log(`Dropped frame ${frame}`, performance.now() - s);
+      console.log(
+        `Dropped frame ${frame}`,
+        `${(performance.now() - s).toFixed(2)}ms`
+      );
     }
 
     latestFrame = frame;
@@ -33,6 +30,5 @@ video.addEventListener("loadedmetadata", () => {
     video.requestVideoFrameCallback(capture);
   };
 
-  video.play();
   video.requestVideoFrameCallback(capture);
 });
