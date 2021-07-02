@@ -7,6 +7,8 @@ const ctx2d = canvas2d.getContext("2d");
 onmessage = ({ data }) => {
   ctx2d.drawImage(data.bitmap, 0, 0, canvas2d.width, canvas2d.height);
 
+  console.log(data.frame);
+
   const pixelData = ctx2d.getImageData(
     0,
     0,

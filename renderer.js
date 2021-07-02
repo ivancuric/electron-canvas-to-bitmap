@@ -1,37 +1,34 @@
-// This file is required by the index.html file and will
-// be executed in the renderer process for that window.
-// No Node.js APIs are available in this process because
-// `nodeIntegration` is turned off. Use `preload.js` to
-// selectively enable features needed in the rendering
-// process.
-
-const fs = require("fs");
 const path = require("path");
 const worker1 = new Worker(path.resolve(__dirname, "worker.js"));
 const worker2 = new Worker(path.resolve(__dirname, "worker.js"));
 
 const video = document.getElementById("potato");
+let latestFrame = 0;
 
 video.addEventListener("loadedmetadata", () => {
-  // let canvas = new OffscreenCanvas(3840, 2160);
-  // let ctx = canvas.getContext("2d");
-  // let frame = 0;
-
   const capture = async (time, meta) => {
-    // console.log(time, meta);
-
-    // ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
+    const frame = meta.presentedFrames;
+    const s = performance.now();
     const bitmap = await createImageBitmap(video);
 
-    worker.postMessage({ bitmap }, [bitmap]);
+    switch (frame % 2) {
+      case 0:
+        worker1.postMessage({ bitmap, frame }, [bitmap]);
+        break;
 
-    // const pixelData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-    // fs.writeFileSync(
-    //   path.resolve(__dirname, `./frames/${frame}.frame`),
-    //   pixelData
-    // );
-    // console.log("asd", performance.now() - s);
+      case 1:
+        worker2.postMessage({ bitmap, frame }, [bitmap]);
+        break;
+
+      default:
+        break;
+    }
+
+    if (frame - latestFrame > 1) {
+      console.log(`Dropped frame ${frame}`, performance.now() - s);
+    }
+
+    latestFrame = frame;
 
     video.requestVideoFrameCallback(capture);
   };
